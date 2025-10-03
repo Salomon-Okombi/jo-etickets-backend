@@ -1,7 +1,7 @@
+# billets/models.py
 from django.db import models
 from django.conf import settings
-import uuid
-import qrcode, io, base64
+import uuid, qrcode, io, base64
 
 # ---------- Générateurs utilitaires ----------
 def generate_uuid():
@@ -12,7 +12,6 @@ def generate_numero_billet():
 
 def generate_cle_achat():
     return str(uuid.uuid4())
-
 
 # ---------- Modèle ----------
 class EBillet(models.Model):
@@ -33,7 +32,7 @@ class EBillet(models.Model):
         on_delete=models.CASCADE,
         related_name='ebillets'
     )
-    id_validateur = models.ForeignKey(
+    validateur = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
         null=True,
@@ -53,6 +52,7 @@ class EBillet(models.Model):
     cle_finale = models.CharField(
         max_length=512,
         default=generate_uuid,
+        unique=True,
         editable=False
     )
     qr_code = models.TextField(blank=True)  # PNG encodé en base64
@@ -70,7 +70,7 @@ class EBillet(models.Model):
     def save(self, *args, **kwargs):
         # Générer la clé finale si absente
         if not self.cle_finale:
-            user_cle = str(self.utilisateur.cle_utilisateur)
+            user_cle = str(self.utilisateur.id)  # identifiant utilisateur
             achat_cle = str(self.cle_achat)
             self.cle_finale = f"{user_cle}-{achat_cle}"
 

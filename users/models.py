@@ -18,7 +18,7 @@ class Utilisateur(AbstractUser):
     ]
 
     cle_utilisateur = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-    type_compte = models.CharField(max_length=20, choices=TYPE_COMPTE_CHOICES, default='CLIENT')
+    type_compte = models.CharField(max_length=20, choices=TYPE_COMPTE_CHOICES, default='ADMIN')
     date_creation = models.DateTimeField(default=timezone.now)
     derniere_connexion = models.DateTimeField(null=True, blank=True)
     statut = models.CharField(max_length=20, choices=STATUT_CHOICES, default='ACTIF')
