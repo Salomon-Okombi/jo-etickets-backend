@@ -1,7 +1,11 @@
 from django.db import models
 
 class StatistiquesVente(models.Model):
-    offre = models.OneToOneField('offres.Offre', on_delete=models.CASCADE, related_name='statistiques')
+    offre = models.OneToOneField(
+        'offres.Offre',
+        on_delete=models.CASCADE,
+        related_name='statistiques'
+    )
     nombre_ventes = models.IntegerField(default=0)
     chiffre_affaires = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     date_derniere_maj = models.DateTimeField(auto_now=True)
