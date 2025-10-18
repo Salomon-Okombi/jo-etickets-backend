@@ -1,4 +1,6 @@
+# analytics/models.py
 from django.db import models
+
 
 class StatistiquesVente(models.Model):
     offre = models.OneToOneField(
@@ -14,6 +16,12 @@ class StatistiquesVente(models.Model):
 
     class Meta:
         db_table = 'statistiques_vente'
+        indexes = [
+            models.Index(fields=['offre']),
+            models.Index(fields=['-date_derniere_maj']),
+        ]
+        verbose_name = "Statistique de Vente"
+        verbose_name_plural = "Statistiques de Ventes"
 
     def __str__(self):
-        return f"Stats Offre {self.offre_id} - ventes:{self.nombre_ventes}"
+        return f"Stats Offre {self.offre_id} - ventes: {self.nombre_ventes}"

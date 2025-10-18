@@ -1,3 +1,4 @@
+#urls analytic
 from rest_framework.routers import DefaultRouter
 from .views import StatistiquesVenteViewSet
 
