@@ -1,4 +1,4 @@
-#serializer analytic
+# analytics/serializers.py
 from rest_framework import serializers
 from .models import StatistiquesVente
 
@@ -17,4 +17,4 @@ class StatistiquesVenteSerializer(serializers.ModelSerializer):
             "moyenne_ventes_jour",
             "pic_ventes_heure",
         ]
-        read_only_fields = ["date_derniere_maj"]
+        read_only_fields = fields  # tout en read-only côté API
