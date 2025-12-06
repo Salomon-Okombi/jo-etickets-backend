@@ -26,6 +26,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # ...
+    "corsheaders",
+    # ...
 
     # DRF + JWT
     'rest_framework',
@@ -39,8 +42,10 @@ INSTALLED_APPS = [
     'paniers',
     'paiements',
     'analytics',
+    "channels",
+    "notifications",
 ]
-
+ASGI_APPLICATION = "core.asgi.application"
 # ---------------------
 # Middleware
 # ---------------------
@@ -55,6 +60,11 @@ MIDDLEWARE = [
 
     # Ajout optionnel : redirige HTTP → HTTPS si activé
     'django.middleware.security.SecurityMiddleware',
+     "corsheaders.middleware.CorsMiddleware",
+    
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
 ]
 
 # ---------------------
@@ -200,3 +210,10 @@ LOGGING = {
         'level': 'INFO',
     },
 }
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+]
+
+# pour l'utilisation cookies / auth
+CORS_ALLOW_CREDENTIALS = True
