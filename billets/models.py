@@ -69,13 +69,13 @@ class EBillet(models.Model):
     )
 
     cle_achat = models.CharField(
-        max_length=255,
+        max_length=64,
         default=generate_cle_achat,
         help_text="Identifiant interne d'achat (UUID)."
     )
 
     cle_finale = models.CharField(
-        max_length=512,
+        max_length=64,
         default=generate_uuid,
         unique=True,
         editable=False,

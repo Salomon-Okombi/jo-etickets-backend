@@ -11,24 +11,28 @@ class Utilisateur(AbstractUser):
     Étend AbstractUser pour ajouter des champs spécifiques à la plateforme.
     """
 
-    TYPE_COMPTE_CHOICES = [
-        ('CLIENT', 'Client'),
-        ('ADMIN', 'Admin'),
-        ('VALIDATEUR', 'Validateur'),
-    ]
-
-    STATUT_CHOICES = [
-        ('ACTIF', 'Actif'),
-        ('INACTIF', 'Inactif'),
-        ('SUSPENDU', 'Suspendu'),
-    ]
-
+    # --------------------------------------------------
+    # Champs principaux
+    # --------------------------------------------------
+    id = models.BigAutoField(primary_key=True)  # clé primaire explicite compatible MySQL
     cle_utilisateur = models.UUIDField(
         default=uuid.uuid4,
         editable=False,
         unique=True,
         help_text="Clé unique d'identification interne de l'utilisateur."
     )
+
+    TYPE_COMPTE_CHOICES = [
+        ('CLIENT', 'Client'),
+        ('ADMIN', 'Admin'),
+        ('VALIDATEUR', 'Validateur'),
+    ]
+    STATUT_CHOICES = [
+        ('ACTIF', 'Actif'),
+        ('INACTIF', 'Inactif'),
+        ('SUSPENDU', 'Suspendu'),
+    ]
+
     type_compte = models.CharField(
         max_length=20,
         choices=TYPE_COMPTE_CHOICES,
@@ -66,6 +70,9 @@ class Utilisateur(AbstractUser):
         help_text="Date de génération du token de réinitialisation."
     )
 
+    # --------------------------------------------------
+    # Authentification
+    # --------------------------------------------------
     USERNAME_FIELD = "username"
     REQUIRED_FIELDS = ["email"]
 
@@ -99,7 +106,6 @@ class HistoriqueConnexion(models.Model):
         ('ECHEC', 'Échec'),
         ('BLOQUE', 'Bloqué'),
     ]
-
     TYPE_ACTION_CHOICES = [
         ('CONNEXION', 'Connexion'),
         ('DECONNEXION', 'Déconnexion'),
