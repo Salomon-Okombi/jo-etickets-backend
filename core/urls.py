@@ -66,7 +66,8 @@ urlpatterns = [
     path("api/evenements/", include("evenements.urls")),
     path("api/offres/", include("offres.urls")),
     path("api/paniers/", include("paniers.urls")),
-    path("api/commandes/", include("paiements.urls")),
+    path("api/paiements/", include("paiements.urls")),
+    path("api/commandes/", include("commandes.urls")),
     path("api/billets/", include("billets.urls")),
     path("api/statistiques/", include("analytics.urls")),
 
