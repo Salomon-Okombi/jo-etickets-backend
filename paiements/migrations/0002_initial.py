@@ -10,18 +10,14 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('notifications', '0002_initial'),
+        ('paiements', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='notification',
+            model_name='paiement',
             name='utilisateur',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='notifications', to=settings.AUTH_USER_MODEL),
-        ),
-        migrations.AddIndex(
-            model_name='notification',
-            index=models.Index(fields=['utilisateur', 'est_lue'], name='notificatio_utilisa_40dafe_idx'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='paiements', to=settings.AUTH_USER_MODEL),
         ),
     ]
