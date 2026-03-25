@@ -5,9 +5,10 @@ from django.core.asgi import get_asgi_application
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
 
-import notifications.routing  # 👈 on va le créer juste après
+import notifications.routing  
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "core.settings")
+settings_modele = "core.deployment_settings" if "RENDER_EXTERNAL_HOSTNAME" in os.environ else "core.settings"
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", settings_modele)
 
 django_asgi_app = get_asgi_application()
 
