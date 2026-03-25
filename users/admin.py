@@ -5,41 +5,57 @@ from .models import Utilisateur, HistoriqueConnexion
 
 @admin.register(Utilisateur)
 class UtilisateurAdmin(UserAdmin):
+
     # colonnes affichées dans la liste
     list_display = (
         "username",
         "email",
-        "type_compte",
-        "statut",
-        "date_creation",
-        "derniere_connexion",
+        "role",
+        "est_verifie",
+        "is_active",
+        "date_joined",
+        "last_login",
         "tentatives_connexion",
     )
-    list_filter = ("type_compte", "statut", "is_staff", "is_superuser", "is_active")
-    search_fields = ("username", "email", "cle_utilisateur")
-    ordering = ("-date_creation",)
 
-    # champs affichés dans le détail
+    list_filter = (
+        "role",
+        "est_verifie",
+        "is_staff",
+        "is_superuser",
+        "is_active",
+    )
+
+    search_fields = (
+        "username",
+        "email",
+    )
+
+    ordering = ("-date_joined",)
+
     fieldsets = UserAdmin.fieldsets + (
         ("Informations supplémentaires", {
             "fields": (
-                "type_compte",
-                "statut",
-                "cle_utilisateur",
-                "date_creation",
-                "derniere_connexion",
+                "role",
+                "telephone",
+                "photo_profil",
+                "est_verifie",
+                "est_bloque",
                 "tentatives_connexion",
-                "token_reset_mdp",
-                "date_token_reset",
+                "derniere_connexion_ip",
             )
         }),
     )
 
-    readonly_fields = ("cle_utilisateur", "date_creation", "derniere_connexion")
+    readonly_fields = (
+        "date_joined",
+        "last_login",
+    )
 
 
 @admin.register(HistoriqueConnexion)
 class HistoriqueConnexionAdmin(admin.ModelAdmin):
+
     list_display = (
         "utilisateur",
         "date_connexion",
@@ -47,8 +63,21 @@ class HistoriqueConnexionAdmin(admin.ModelAdmin):
         "statut_connexion",
         "type_action",
     )
-    list_filter = ("statut_connexion", "type_action", "date_connexion")
-    search_fields = ("utilisateur__username", "utilisateur__email", "adresse_ip")
-    ordering = ("-date_connexion",)
-    readonly_fields = ("date_connexion",)
 
+    list_filter = (
+        "statut_connexion",
+        "type_action",
+        "date_connexion",
+    )
+
+    search_fields = (
+        "utilisateur__username",
+        "utilisateur__email",
+        "adresse_ip",
+    )
+
+    ordering = ("-date_connexion",)
+
+    readonly_fields = (
+        "date_connexion",
+    )
