@@ -9,6 +9,7 @@ python manage.py collectstatic --no-input
 
 # Migrations
 python manage.py migrate
+python manage.py shell < scripts/create_superuser.py
 
 # Création automatique du superuser (si activée)
 if [ "$CREATE_SUPERUSER" = "true" ]; then
