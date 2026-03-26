@@ -8,13 +8,13 @@ from .models import Utilisateur, HistoriqueConnexion
 @receiver(user_logged_in)
 def handle_user_logged_in(sender, request, user, **kwargs):
     """
-    ✅ Déclenché lorsqu'un utilisateur se connecte avec succès.
+    Déclenché lorsqu'un utilisateur se connecte avec succès.
     - Met à jour la date de dernière connexion.
     - Enregistre une entrée dans l'historique des connexions.
     """
     user.derniere_connexion = timezone.now()
     user.tentatives_connexion = 0  # reset du compteur d’échecs
-    user.save(update_fields=["derniere_connexion", "tentatives_connexion"])
+    user.save(update_fields=["last_login", "tentatives_connexion"])
 
     # Récupère des infos utiles
     ip = request.META.get('REMOTE_ADDR')
@@ -32,7 +32,7 @@ def handle_user_logged_in(sender, request, user, **kwargs):
 @receiver(user_logged_out)
 def handle_user_logged_out(sender, request, user, **kwargs):
     """
-    ✅ Déclenché lors de la déconnexion.
+    Déclenché lors de la déconnexion.
     - Ajoute une entrée dans l’historique.
     """
     if user and isinstance(user, Utilisateur):
@@ -51,7 +51,7 @@ def handle_user_logged_out(sender, request, user, **kwargs):
 @receiver(user_login_failed)
 def handle_user_login_failed(sender, credentials, request, **kwargs):
     """
-    ⚠️ Déclenché lorsqu'une tentative de connexion échoue.
+    Déclenché lorsqu'une tentative de connexion échoue.
     - Incrémente le compteur d’échecs.
     - Enregistre l’échec dans l’historique.
     """
