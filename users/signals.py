@@ -15,7 +15,7 @@ def handle_user_logged_in(sender, request, user, **kwargs):
     Connexion réussie :
     - met à jour last_login
     - reset le compteur de tentatives
-    - écrit dans l'historique
+    - enregistre l'historique
     """
     user.last_login = timezone.now()
     user.tentatives_connexion = 0
@@ -36,7 +36,7 @@ def handle_user_logged_in(sender, request, user, **kwargs):
 @receiver(user_logged_out)
 def handle_user_logged_out(sender, request, user, **kwargs):
     """
-    Déconnexion réussie
+    Déconnexion
     """
     if not user or not isinstance(user, Utilisateur):
         return
@@ -56,9 +56,7 @@ def handle_user_logged_out(sender, request, user, **kwargs):
 @receiver(user_login_failed)
 def handle_user_login_failed(sender, credentials, request, **kwargs):
     """
-    Tentative échouée :
-    - incrémente le compteur si l'utilisateur existe
-    - log l'échec, même si l'utilisateur n'existe pas
+    Tentative échouée
     """
     username = credentials.get("username")
     user = None
