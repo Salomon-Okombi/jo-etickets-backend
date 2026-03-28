@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "commandes",
     "billets",
     "paiements.apps.PaiementsConfig",
+    "analytics.apps.AnalyticsConfig",
 ]
 
 # ============================================================

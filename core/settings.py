@@ -33,7 +33,7 @@ INSTALLED_APPS = [
     "paniers",
     "paiements.apps.PaiementsConfig",
     "billets",
-    "analytics",
+    "analytics.apps.AnalyticsConfig",
     "notifications",
     "commandes",
 ]
