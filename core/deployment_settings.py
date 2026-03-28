@@ -1,68 +1,57 @@
+from pathlib import Path
+from decouple import config, Csv
+from datetime import timedelta
 import os
 import dj_database_url
-from .settings import *  # noqa
-from .settings import BASE_DIR  # noqa
 
 # ============================================================
-# PRODUCTION SETTINGS — RENDER
+# BASE
 # ============================================================
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+SECRET_KEY = config("SECRET_KEY")
 
 DEBUG = False
 
-# ------------------------------------------------------------
-# SECRET KEY
-# ------------------------------------------------------------
-
-SECRET_KEY = os.environ.get("SECRET_KEY")
-if not SECRET_KEY:
-    raise ValueError("SECRET_KEY manquant dans les variables d'environnement")
-
-# ------------------------------------------------------------
-# HOSTS / DOMAINS
-# ------------------------------------------------------------
-
-RENDER_HOST = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
-FRONTEND_URL = os.environ.get("FRONTEND_URL")  # ex: https://jo-etickets-frontend.onrender.com
-
 ALLOWED_HOSTS = [
+    "jo-etickets-backend.onrender.com",
     "localhost",
     "127.0.0.1",
 ]
 
-if RENDER_HOST:
-    ALLOWED_HOSTS.append(RENDER_HOST)
+# ============================================================
+# APPLICATIONS
+# ============================================================
 
-# ------------------------------------------------------------
-# CSRF
-# ------------------------------------------------------------
+INSTALLED_APPS = [
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
 
-CSRF_TRUSTED_ORIGINS = []
+    "corsheaders",
 
-if RENDER_HOST:
-    CSRF_TRUSTED_ORIGINS.append(f"https://{RENDER_HOST}")
+    "rest_framework",
+    "rest_framework.authtoken",
 
-if FRONTEND_URL:
-    CSRF_TRUSTED_ORIGINS.append(FRONTEND_URL)
+    "users",
+    "evenements",
+    "offres",
+    "paniers",
+    "commandes",
+    "billets",
+]
 
-# ------------------------------------------------------------
-# CORS
-# ------------------------------------------------------------
-
-CORS_ALLOWED_ORIGINS = []
-
-if FRONTEND_URL:
-    CORS_ALLOWED_ORIGINS.append(FRONTEND_URL)
-
-CORS_ALLOW_CREDENTIALS = True
-
-# ------------------------------------------------------------
-# MIDDLEWARE
-# ------------------------------------------------------------
+# ============================================================
+# MIDDLEWARE (ORDRE IMPORTANT)
+# ============================================================
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -71,56 +60,111 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-# ------------------------------------------------------------
-# STATIC FILES
-# ------------------------------------------------------------
+# ============================================================
+# CORS / CSRF (CORRECTION DU PROBLÈME FRONTEND)
+# ============================================================
 
-STATIC_URL = "/static/"
-STATIC_ROOT = BASE_DIR / "staticfiles"
+CORS_ALLOWED_ORIGINS = [
+    "https://jo-etickets-frontend.onrender.com",
+]
 
-STORAGES = {
-    "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
-    },
-    "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-    },
-}
+CORS_ALLOW_CREDENTIALS = True
 
-# ------------------------------------------------------------
-# DATABASE
-# ------------------------------------------------------------
+from corsheaders.defaults import default_headers
+
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    "authorization",
+    "content-type",
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://jo-etickets-frontend.onrender.com",
+]
+
+# ============================================================
+# URLS / ASGI / WSGI
+# ============================================================
+
+ROOT_URLCONF = "core.urls"
+
+ASGI_APPLICATION = "core.asgi.application"
+WSGI_APPLICATION = "core.wsgi.application"
+
+# ============================================================
+# DATABASE (RENDER)
+# ============================================================
 
 DATABASES = {
     "default": dj_database_url.config(
-        default=os.environ.get("DATABASE_URL"),
+        default=config("DATABASE_URL"),
         conn_max_age=600,
         ssl_require=True,
     )
 }
 
-# ------------------------------------------------------------
-# SECURITY
-# ------------------------------------------------------------
+# ============================================================
+# AUTH
+# ============================================================
 
-SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+AUTH_USER_MODEL = "users.Utilisateur"
+
+# ============================================================
+# REST FRAMEWORK
+# ============================================================
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.TokenAuthentication",
+    ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.AllowAny",
+    ],
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 10,
+}
+
+# ============================================================
+# INTERNATIONALISATION
+# ============================================================
+
+LANGUAGE_CODE = "fr-fr"
+TIME_ZONE = "Europe/Paris"
+USE_I18N = True
+USE_TZ = True
+
+# ============================================================
+# STATIC FILES
+# ============================================================
+
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# ============================================================
+# SECURITY (PRODUCTION)
+# ============================================================
+
 SECURE_SSL_REDIRECT = True
 
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
-SECURE_BROWSER_XSS_FILTER = True
-SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_HSTS_SECONDS = 3600
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
 
-# ------------------------------------------------------------
-# LOGGING
-# ------------------------------------------------------------
+X_FRAME_OPTIONS = "DENY"
+
+# ============================================================
+# LOGGING (CONSOLE POUR RENDER)
+# ============================================================
 
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
     "handlers": {
-        "console": {"class": "logging.StreamHandler"},
+        "console": {
+            "class": "logging.StreamHandler",
+        },
     },
     "root": {
         "handlers": ["console"],
