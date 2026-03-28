@@ -1,8 +1,7 @@
 from pathlib import Path
-from decouple import config, Csv
-from datetime import timedelta
-import os
+from decouple import config
 import dj_database_url
+from corsheaders.defaults import default_headers
 
 # ============================================================
 # BASE
@@ -11,7 +10,6 @@ import dj_database_url
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = config("SECRET_KEY")
-
 DEBUG = False
 
 ALLOWED_HOSTS = [
@@ -25,6 +23,7 @@ ALLOWED_HOSTS = [
 # ============================================================
 
 INSTALLED_APPS = [
+    # Django
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -32,21 +31,23 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
 
+    # Third‑party
     "corsheaders",
-
     "rest_framework",
     "rest_framework.authtoken",
 
-    "users",
+    # Local apps
+    "users.apps.UsersConfig",
     "evenements",
     "offres",
     "paniers",
     "commandes",
     "billets",
+    "paiements.apps.PaiementsConfig",
 ]
 
 # ============================================================
-# MIDDLEWARE (ORDRE IMPORTANT)
+# MIDDLEWARE (ORDRE CRUCIAL)
 # ============================================================
 
 MIDDLEWARE = [
@@ -61,7 +62,7 @@ MIDDLEWARE = [
 ]
 
 # ============================================================
-# CORS / CSRF (CORRECTION DU PROBLÈME FRONTEND)
+# CORS / CSRF (PRODUCTION RENDER)
 # ============================================================
 
 CORS_ALLOWED_ORIGINS = [
@@ -69,8 +70,6 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 CORS_ALLOW_CREDENTIALS = True
-
-from corsheaders.defaults import default_headers
 
 CORS_ALLOW_HEADERS = list(default_headers) + [
     "authorization",
@@ -140,7 +139,7 @@ STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # ============================================================
-# SECURITY (PRODUCTION)
+# SECURITY (RENDER / HTTPS)
 # ============================================================
 
 SECURE_SSL_REDIRECT = True
@@ -155,7 +154,7 @@ SECURE_HSTS_PRELOAD = True
 X_FRAME_OPTIONS = "DENY"
 
 # ============================================================
-# LOGGING (CONSOLE POUR RENDER)
+# LOGGING (RENDER)
 # ============================================================
 
 LOGGING = {
