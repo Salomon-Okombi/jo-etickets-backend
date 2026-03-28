@@ -30,7 +30,7 @@ INSTALLED_APPS = [
     "evenements",
     "offres",
     "paniers",
-    "paiements",
+    "paiements.apps.PaiementsConfig",
     "billets",
     "analytics",
     "notifications",
