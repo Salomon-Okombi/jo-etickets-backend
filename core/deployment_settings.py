@@ -1,4 +1,4 @@
-#deployment_settings.py
+# core/deployment_settings.py
 from pathlib import Path
 from decouple import config
 import dj_database_url
@@ -69,12 +69,16 @@ TEMPLATES = [
 ]
 
 # ============================================================
-# MIDDLEWARE (ORDRE CRUCIAL)
+# MIDDLEWARE (ORDRE CRUCIAL ✅)
 # ============================================================
 
 MIDDLEWARE = [
-    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
+
+    # ✅ WHITENOISE : OBLIGATOIRE POUR LES STATICS EN PROD
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+
+    "corsheaders.middleware.CorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -143,6 +147,7 @@ REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 10,
 }
+
 # ============================================================
 # INTERNATIONALISATION
 # ============================================================
@@ -153,11 +158,21 @@ USE_I18N = True
 USE_TZ = True
 
 # ============================================================
-# STATIC FILES
+# STATIC FILES ✅ (FIX CRITIQUE)
 # ============================================================
 
 STATIC_URL = "/static/"
+
+# ✅ Dossier où collectstatic copie TOUT
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# ✅ Optionnel mais safe
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
+
+# ✅ STORAGE WHITENOISE (OBLIGATOIRE)
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # ============================================================
 # SECURITY (RENDER / HTTPS)
