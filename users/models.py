@@ -1,4 +1,4 @@
-#users/model.py
+# users/models.py
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.conf import settings
@@ -68,6 +68,26 @@ class Utilisateur(AbstractUser):
         verbose_name = "Utilisateur"
         verbose_name_plural = "Utilisateurs"
         ordering = ["-date_joined"]
+
+    def save(self, *args, **kwargs):
+        """
+        RÈGLE MÉTIER CRITIQUE :
+
+        - Un superuser est TOUJOURS ADMIN
+        - Un ADMIN est TOUJOURS staff
+        - Empêche toute incohérence entre Django et le frontend
+        """
+
+        # Sécurité absolue : un superuser est ADMIN
+        if self.is_superuser:
+            self.role = "ADMIN"
+            self.is_staff = True
+
+        # Cohérence métier : ADMIN => staff
+        if self.role == "ADMIN":
+            self.is_staff = True
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.username} ({self.email})"
@@ -145,5 +165,4 @@ class HistoriqueConnexion(models.Model):
             if self.utilisateur
             else (self.identifiant_saisi or "inconnu")
         )
-
         return f"{identite} - {self.date_connexion.strftime('%d/%m/%Y %H:%M')} - {self.statut_connexion}"
