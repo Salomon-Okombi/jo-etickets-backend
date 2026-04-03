@@ -33,6 +33,7 @@ class UtilisateurAdmin(UserAdmin):
 
     ordering = ("-date_joined",)
 
+    # ✅ On n’ajoute QUE les champs métiers
     fieldsets = UserAdmin.fieldsets + (
         ("Informations supplémentaires", {
             "fields": (
@@ -43,14 +44,6 @@ class UtilisateurAdmin(UserAdmin):
                 "est_bloque",
                 "tentatives_connexion",
                 "derniere_connexion_ip",
-            )
-        }),
-        ("Droits d'administration", {
-            "fields": (
-                "is_staff",
-                "is_superuser",
-                "groups",
-                "user_permissions",
             )
         }),
     )
