@@ -1,18 +1,35 @@
 from rest_framework import serializers
 from .models import Evenement
 
+class EvenementListSerializer(serializers.ModelSerializer):
+    image_url = serializers.ReadOnlyField()
 
-class EvenementSerializer(serializers.ModelSerializer):
     class Meta:
         model = Evenement
         fields = [
             "id",
-            "nom",
-            "discipline_sportive",
+            "nom_evenement",
+            "description_courte",
+            "image_url",
             "date_evenement",
-            "lieu_evenement",
-            "description",
-            "statut",
-            "date_creation",
+            "heure_evenement",
+            "lieu",
+            "discipline",
         ]
-        read_only_fields = ["id", "date_creation"]
+
+
+class EvenementDetailSerializer(serializers.ModelSerializer):
+    image_url = serializers.ReadOnlyField()
+
+    class Meta:
+        model = Evenement
+        fields = [
+            "id",
+            "nom_evenement",
+            "description_longue",
+            "image_url",
+            "date_evenement",
+            "heure_evenement",
+            "lieu",
+            "discipline",
+        ]

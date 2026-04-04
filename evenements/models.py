@@ -1,23 +1,51 @@
 from django.db import models
 
 class Evenement(models.Model):
-    STATUTS = [
-        ('A_VENIR', 'À venir'),
-        ('EN_COURS', 'En cours'),
-        ('TERMINE', 'Terminé'),
+    STATUT_CHOICES = [
+        ("BROUILLON", "Brouillon"),
+        ("PUBLIE", "Publié"),
+        ("ARCHIVE", "Archivé"),
     ]
 
-    nom = models.CharField(max_length=200)
-    discipline_sportive = models.CharField(max_length=100)
+    nom_evenement = models.CharField(max_length=255)
+
+    description_courte = models.TextField(
+        help_text="Description affichée dans la boutique",
+        blank=True
+    )
+
+    description_longue = models.TextField(
+        help_text="Description affichée sur la page détail",
+        blank=True
+    )
+
+    image = models.ImageField(
+        upload_to="evenements/",
+        blank=True,
+        null=True
+    )
+
     date_evenement = models.DateField()
-    lieu_evenement = models.CharField(max_length=200)
-    description = models.TextField(blank=True, null=True)
-    statut = models.CharField(max_length=20, choices=STATUTS, default='A_VENIR')
+    heure_evenement = models.TimeField(blank=True, null=True)
+    lieu = models.CharField(max_length=255)
+    discipline = models.CharField(max_length=255, blank=True)
+
+    statut = models.CharField(
+        max_length=20,
+        choices=STATUT_CHOICES,
+        default="BROUILLON"
+    )
+
     date_creation = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        db_table = 'evenement'
-        ordering = ['date_evenement']
+        ordering = ["date_evenement"]
 
     def __str__(self):
-        return f"{self.nom} - {self.date_evenement}"
+        return self.nom_evenement
+
+    @property
+    def image_url(self):
+        if self.image:
+            return self.image.url
+        return "/static/images/event-default.jpg"
