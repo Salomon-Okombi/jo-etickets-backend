@@ -133,6 +133,7 @@ class HistoriqueConnexion(models.Model):
         help_text="Adresse IP de la tentative de connexion.",
     )
 
+
     user_agent = models.TextField(
         null=True,
         blank=True,
