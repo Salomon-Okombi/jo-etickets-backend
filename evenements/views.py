@@ -1,4 +1,5 @@
 from rest_framework.viewsets import ReadOnlyModelViewSet
+from rest_framework.permissions import AllowAny
 from .models import Evenement
 from .serializers import (
     EvenementListSerializer,
@@ -6,6 +7,13 @@ from .serializers import (
 )
 
 class EvenementViewSet(ReadOnlyModelViewSet):
+    """
+    Accès public en lecture.
+    Utilisé pour la boutique événements.
+    """
+
+    permission_classes = [AllowAny]
+
     queryset = Evenement.objects.filter(statut="PUBLIE")
 
     def get_serializer_class(self):
