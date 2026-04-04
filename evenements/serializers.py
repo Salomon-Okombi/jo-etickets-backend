@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Evenement
 
+
 class EvenementListSerializer(serializers.ModelSerializer):
     image_url = serializers.ReadOnlyField()
 
@@ -32,4 +33,5 @@ class EvenementDetailSerializer(serializers.ModelSerializer):
             "heure_evenement",
             "lieu",
             "discipline",
+            "statut",
         ]

@@ -6,14 +6,15 @@ from .serializers import (
     EvenementDetailSerializer,
 )
 
+
 class EvenementViewSet(ReadOnlyModelViewSet):
     """
-    Accès public en lecture.
-    Utilisé pour la boutique événements.
+    API publique.
+    Utilisée par la boutique événements (visiteurs + clients).
+    Lecture seule.
     """
 
     permission_classes = [AllowAny]
-
     queryset = Evenement.objects.filter(statut="PUBLIE")
 
     def get_serializer_class(self):
