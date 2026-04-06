@@ -7,12 +7,7 @@ from .serializers import (
     EvenementDetailSerializer,
 )
 
-
 class EvenementViewSet(ReadOnlyModelViewSet):
-    """
-    API PUBLIQUE
-    /api/evenements/
-    """
     permission_classes = [AllowAny]
     queryset = Evenement.objects.filter(statut="PUBLIE").order_by("date_evenement")
 
