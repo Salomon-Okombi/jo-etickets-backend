@@ -5,15 +5,17 @@ from .views_admin import EvenementAdminViewSet
 router = DefaultRouter()
 
 #  PUBLIC
+# /api/evenements/
 router.register(
-    r"evenements",
+    r"",
     EvenementViewSet,
     basename="evenements",
 )
 
-# ADMIN
+#  ADMIN
+# /api/evenements/admin/
 router.register(
-    r"admin/evenements",
+    r"admin",
     EvenementAdminViewSet,
     basename="admin-evenements",
 )
