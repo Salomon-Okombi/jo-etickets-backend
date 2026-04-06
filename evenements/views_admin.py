@@ -1,16 +1,13 @@
+# evenements/views_admin.py
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAdminUser
 from .models import Evenement
-from .serializers import EvenementDetailSerializer
-
+from .serializers import EvenementAdminSerializer
 
 class EvenementAdminViewSet(ModelViewSet):
     """
-    API back-office événements.
-    Réservée aux administrateurs.
-    CRUD complet.
+    CRUD 
     """
-
     queryset = Evenement.objects.all()
-    serializer_class = EvenementDetailSerializer
+    serializer_class = EvenementAdminSerializer
     permission_classes = [IsAdminUser]
