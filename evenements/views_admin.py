@@ -4,10 +4,12 @@ from rest_framework.permissions import IsAdminUser
 from .models import Evenement
 from .serializers import EvenementAdminSerializer
 
+
 class EvenementAdminViewSet(ModelViewSet):
     """
-    CRUD 
+    API ADMIN
+    /api/evenements/admin/
     """
-    queryset = Evenement.objects.all()
+    queryset = Evenement.objects.all().order_by("-date_creation")
     serializer_class = EvenementAdminSerializer
     permission_classes = [IsAdminUser]
