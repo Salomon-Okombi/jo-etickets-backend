@@ -1,16 +1,18 @@
-# core/urls.py
 from django.contrib import admin
 from django.urls import path, include, re_path
 from django.http import JsonResponse
 from django.conf import settings
 from django.conf.urls.static import static
+
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
+
 # ===============================
-#  Swagger / ReDoc
+# Swagger / ReDoc
 # ===============================
+
 schema_view = get_schema_view(
     openapi.Info(
         title="JO eTicket API",
@@ -23,12 +25,14 @@ schema_view = get_schema_view(
     permission_classes=(permissions.AllowAny,),
 )
 
+
 # ===============================
-#  API root
+# API root
 # ===============================
+
 def api_root(request):
     return JsonResponse({
-        "message": " Bienvenue sur l’API JO eTicket",
+        "message": "Bienvenue sur l’API JO eTicket",
         "version": "v1",
         "apps": {
             "utilisateurs": "/api/utilisateurs/",
@@ -46,14 +50,16 @@ def api_root(request):
         },
     })
 
+
 # ===============================
-#  URL patterns
+# URL patterns principales
 # ===============================
+
 urlpatterns = [
     path("", api_root, name="api-root"),
     path("admin/", admin.site.urls),
 
-    # Apps toujours présentes
+    # Apps principales
     path("api/utilisateurs/", include("users.urls")),
     path("api/evenements/", include("evenements.urls")),
     path("api/offres/", include("offres.urls")),
@@ -62,10 +68,11 @@ urlpatterns = [
     path("api/billets/", include("billets.urls")),
 ]
 
+
 # ===============================
-#  Apps métier conditionnelles
-# (évite erreurs app_label en prod)
+# Apps métier conditionnelles
 # ===============================
+
 if "paiements.apps.PaiementsConfig" in settings.INSTALLED_APPS:
     urlpatterns += [
         path("api/paiements/", include("paiements.urls")),
@@ -76,9 +83,11 @@ if "analytics.apps.AnalyticsConfig" in settings.INSTALLED_APPS:
         path("api/statistiques/", include("analytics.urls")),
     ]
 
+
 # ===============================
-#  Documentation
+# Documentation API
 # ===============================
+
 urlpatterns += [
     re_path(
         r"^swagger(?P<format>\.json|\.yaml)$",
@@ -97,9 +106,15 @@ urlpatterns += [
     ),
 ]
 
+
 # ===============================
-#  Static / media (dev only)
+# STATIC & MEDIA (PRODUCTION + DEV)
 # ===============================
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+# IMPORTANT :
+# - STATIC : fichiers techniques (admin, css)
+# - MEDIA  : images uploadées (evenements, offres, etc.)
+# Ces deux dossiers doivent être servis même en production Render
+# ===============================
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
