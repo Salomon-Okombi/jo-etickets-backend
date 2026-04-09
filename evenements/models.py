@@ -6,7 +6,7 @@ class Evenement(models.Model):
     Modèle Evenement
     Utilisé pour :
     - la boutique publique (frontend)
-    - le back‑office admin
+    - le back-office admin
     - l’API REST
     """
 
@@ -100,12 +100,12 @@ class Evenement(models.Model):
     @property
     def image_url(self):
         """
-         Retourne l’URL réelle de l’image si elle existe
-         Retourne None sinon
+        Retourne l’URL réelle de l’image si elle existe.
+        Retourne None sinon.
 
-        IMPORTANT :
-        - Aucun fallback ici
-        - Le fallback visuel est géré côté frontend
+        Règle importante :
+        - Aucun fallback d’image côté backend
+        - Le fallback visuel est géré exclusivement côté frontend
         """
         if self.image:
             return self.image.url
