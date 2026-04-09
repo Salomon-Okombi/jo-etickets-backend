@@ -69,13 +69,13 @@ TEMPLATES = [
 ]
 
 # ============================================================
-# MIDDLEWARE (ORDRE CRUCIAL ✅)
+# MIDDLEWARE (ORDRE CRUCIAL )
 # ============================================================
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
 
-    # ✅ WHITENOISE : OBLIGATOIRE POUR LES STATICS EN PROD
+    # WHITENOISE : OBLIGATOIRE POUR LES STATICS EN PROD
     "whitenoise.middleware.WhiteNoiseMiddleware",
 
     "corsheaders.middleware.CorsMiddleware",
@@ -158,20 +158,20 @@ USE_I18N = True
 USE_TZ = True
 
 # ============================================================
-# STATIC FILES ✅ (FIX CRITIQUE)
+# STATIC FILES  (FIX CRITIQUE)
 # ============================================================
 
 STATIC_URL = "/static/"
 
-# ✅ Dossier où collectstatic copie TOUT
+#  Dossier où collectstatic copie TOUT
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# ✅ Optionnel mais safe
+#  Optionnel mais safe
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
 
-# ✅ STORAGE WHITENOISE (OBLIGATOIRE)
+# STORAGE WHITENOISE (OBLIGATOIRE)
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # ============================================================
