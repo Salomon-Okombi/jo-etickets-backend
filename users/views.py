@@ -1,3 +1,4 @@
+#users/views.py
 from rest_framework import generics, permissions, viewsets, filters
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
@@ -29,7 +30,7 @@ class UtilisateurDetailView(generics.RetrieveUpdateAPIView):
 
 
 # =========================
-# ✅ ADMIN CRUD USERS
+#  ADMIN CRUD USERS
 # =========================
 
 class AdminUtilisateurViewSet(viewsets.ModelViewSet):

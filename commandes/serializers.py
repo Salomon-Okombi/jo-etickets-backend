@@ -1,3 +1,4 @@
+#commandes/serializers
 from rest_framework import serializers
 from .models import Commande, LigneCommande
 from offres.models import Offre

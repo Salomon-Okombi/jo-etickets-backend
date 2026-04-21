@@ -1,3 +1,4 @@
+#paiements/serializers.py
 from rest_framework import serializers
 from .models import Paiement
 from commandes.models import Commande
