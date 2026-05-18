@@ -1,16 +1,30 @@
-#users/serializers.py
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 from .models import Utilisateur
 
 # =========================================================
-# UTILISATEUR (READ / PROFILE)
+# PROFIL UTILISATEUR (ME)
 # =========================================================
 
-class UtilisateurSerializer(serializers.ModelSerializer):
+class UtilisateurProfileSerializer(serializers.ModelSerializer):
+    photo_profil_url = serializers.SerializerMethodField()
+
     class Meta:
         model = Utilisateur
         fields = [
+            "id",
+            "username",
+            "email",
+            "first_name",
+            "last_name", 
+            "telephone",
+            "photo_profil",
+            "photo_profil_url",
+            "role",
+            "est_verifie",
+            "date_creation",
+        ]
+        read_only_fields = [
             "id",
             "username",
             "email",
@@ -18,7 +32,12 @@ class UtilisateurSerializer(serializers.ModelSerializer):
             "est_verifie",
             "date_creation",
         ]
-        read_only_fields = ["id", "date_creation"]
+
+    def get_photo_profil_url(self, obj):
+        request = self.context.get("request")
+        if obj.photo_profil and request:
+            return request.build_absolute_uri(obj.photo_profil.url)
+        return None
 
 
 # =========================================================
@@ -28,7 +47,6 @@ class UtilisateurSerializer(serializers.ModelSerializer):
 class UtilisateurRegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
         write_only=True,
-        required=True,
         validators=[validate_password],
         style={"input_type": "password"},
     )
@@ -43,21 +61,39 @@ class UtilisateurRegisterSerializer(serializers.ModelSerializer):
             email=validated_data["email"],
             password=validated_data["password"],
         )
-
-        # rôle par défaut
         user.role = "UTILISATEUR"
         user.save()
         return user
 
 
 # =========================================================
-# ADMIN CRUD – CREATE
+# ADMIN – READ
+# =========================================================
+
+class UtilisateurAdminReadSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Utilisateur
+        fields = [
+            "id",
+            "username",
+            "email",
+            "first_name",
+            "last_name",
+            "telephone",
+            "role",
+            "est_verifie",
+            "est_bloque",
+            "date_creation",
+        ]
+
+
+# =========================================================
+# ADMIN – CREATE
 # =========================================================
 
 class AdminUserCreateSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
         write_only=True,
-        required=True,
         validators=[validate_password],
         style={"input_type": "password"},
     )
@@ -71,16 +107,13 @@ class AdminUserCreateSerializer(serializers.ModelSerializer):
             "password",
             "role",
             "est_verifie",
-            "date_creation",
         ]
-        read_only_fields = ["id", "date_creation"]
 
     def create(self, validated_data):
         password = validated_data.pop("password")
         user = Utilisateur(**validated_data)
         user.set_password(password)
 
-        # mapping rôle → permissions Django
         user.is_staff = user.role in ["ADMIN", "ORGANISATEUR"]
         user.is_superuser = user.role == "ADMIN"
 
@@ -89,7 +122,7 @@ class AdminUserCreateSerializer(serializers.ModelSerializer):
 
 
 # =========================================================
-# ADMIN CRUD – UPDATE
+# ADMIN – UPDATE
 # =========================================================
 
 class AdminUserUpdateSerializer(serializers.ModelSerializer):
@@ -103,7 +136,6 @@ class AdminUserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Utilisateur
         fields = [
-            "id",
             "username",
             "email",
             "password",
@@ -111,7 +143,6 @@ class AdminUserUpdateSerializer(serializers.ModelSerializer):
             "est_verifie",
             "est_bloque",
         ]
-        read_only_fields = ["id"]
 
     def update(self, instance, validated_data):
         password = validated_data.pop("password", None)
@@ -119,7 +150,6 @@ class AdminUserUpdateSerializer(serializers.ModelSerializer):
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
 
-        # mapping rôle → permissions Django
         instance.is_staff = instance.role in ["ADMIN", "ORGANISATEUR"]
         instance.is_superuser = instance.role == "ADMIN"
 

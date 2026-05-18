@@ -1,12 +1,14 @@
-#users/views.py
+#users : views.py
 from rest_framework import generics, permissions, viewsets, filters
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
+from rest_framework.parsers import MultiPartParser, FormParser
 
 from .models import Utilisateur
 from .serializers import (
-    UtilisateurSerializer,
+    UtilisateurProfileSerializer,
     UtilisateurRegisterSerializer,
+    UtilisateurAdminReadSerializer,
     AdminUserCreateSerializer,
     AdminUserUpdateSerializer,
 )
@@ -22,33 +24,40 @@ class UtilisateurRegisterView(generics.CreateAPIView):
 
 
 class UtilisateurDetailView(generics.RetrieveUpdateAPIView):
-    serializer_class = UtilisateurSerializer
+    """
+    GET /api/utilisateurs/me/
+    PATCH /api/utilisateurs/me/
+    """
+    serializer_class = UtilisateurProfileSerializer
     permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
 
     def get_object(self):
         return self.request.user
 
 
 # =========================
-#  ADMIN CRUD USERS
+# ADMIN CRUD UTILISATEURS
 # =========================
 
 class AdminUtilisateurViewSet(viewsets.ModelViewSet):
-    """
-    CRUD Admin sur les utilisateurs
-    Base URL (via core/urls.py): /api/utilisateurs/
-    - GET    /api/utilisateurs/
-    - POST   /api/utilisateurs/
-    - GET    /api/utilisateurs/<id>/
-    - PATCH  /api/utilisateurs/<id>/
-    - DELETE /api/utilisateurs/<id>/
-    """
     queryset = Utilisateur.objects.all().order_by("-date_creation")
     permission_classes = [IsAdminUser]
 
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
-    search_fields = ["username", "email", "type_compte", "statut"]
-    ordering_fields = ["id", "username", "email", "type_compte", "statut", "date_creation"]
+    search_fields = [
+        "username",
+        "email",
+        "first_name",
+        "last_name",
+        "telephone",
+    ]
+    ordering_fields = [
+        "id",
+        "username",
+        "email",
+        "date_creation",
+    ]
     ordering = ["-date_creation"]
 
     def get_serializer_class(self):
@@ -56,17 +65,23 @@ class AdminUtilisateurViewSet(viewsets.ModelViewSet):
             return AdminUserCreateSerializer
         if self.action in ["update", "partial_update"]:
             return AdminUserUpdateSerializer
-        return UtilisateurSerializer
+        return UtilisateurAdminReadSerializer
 
     def destroy(self, request, *args, **kwargs):
         user = self.get_object()
 
-        # Sécurité simple: empêcher suppression de soi-même
+        # empêcher suppression de soi-même
         if user.id == request.user.id:
-            return Response({"detail": "Impossible de supprimer votre propre compte."}, status=400)
+            return Response(
+                {"detail": "Impossible de supprimer votre propre compte."},
+                status=400,
+            )
 
-        # (optionnel) empêcher suppression superuser
-        if getattr(user, "is_superuser", False):
-            return Response({"detail": "Impossible de supprimer un super-admin."}, status=400)
+        # empêcher suppression d’un super-admin
+        if user.is_superuser:
+            return Response(
+                {"detail": "Impossible de supprimer un super-admin."},
+                status=400,
+            )
 
         return super().destroy(request, *args, **kwargs)

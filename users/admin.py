@@ -1,47 +1,37 @@
-#users/admin.py
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from .models import Utilisateur, HistoriqueConnexion
 
 
 @admin.register(Utilisateur)
-class UtilisateurAdminDebug(UserAdmin):
-    """
-    ADMIN TEMPORAIRE DE DEBUG
-     À SUPPRIMER APRÈS CORRECTION DU ROOT
-    """
+class UtilisateurAdmin(UserAdmin):
 
     list_display = (
-        "id",
         "username",
         "email",
         "role",
-        "is_staff",
-        "is_superuser",
         "is_active",
+        "est_verifie",
+        "est_bloque",
+        "is_staff",
+        "date_joined",
     )
 
     list_filter = (
         "role",
-        "is_staff",
-        "is_superuser",
         "is_active",
+        "is_staff",
+        "est_verifie",
+        "est_bloque",
     )
 
-    search_fields = ("username", "email")
+    search_fields = ("username", "email", "telephone")
+    ordering = ("-date_joined",)
 
-    ordering = ("-id",)
-
-    # On affiche TOUTES LES CHOSES UTILES
     fieldsets = (
-        (None, {
+        ("Identité", {
             "fields": (
                 "username",
-                "password",
-            )
-        }),
-        ("Informations personnelles", {
-            "fields": (
                 "email",
                 "first_name",
                 "last_name",
@@ -49,24 +39,34 @@ class UtilisateurAdminDebug(UserAdmin):
                 "photo_profil",
             )
         }),
-        ("Droits", {
+        ("Sécurité", {
+            "fields": (
+                "password",
+                "last_login",
+                "tentatives_connexion",
+                "derniere_connexion_ip",
+            )
+        }),
+        ("Statut", {
             "fields": (
                 "role",
                 "is_active",
+                "est_verifie",
+                "est_bloque",
+            )
+        }),
+        ("Permissions", {
+            "fields": (
                 "is_staff",
                 "is_superuser",
                 "groups",
                 "user_permissions",
             )
         }),
-        ("Sécurité / état", {
+        ("Dates", {
             "fields": (
-                "est_verifie",
-                "est_bloque",
-                "tentatives_connexion",
-                "derniere_connexion_ip",
-                "last_login",
                 "date_joined",
+                "derniere_modification",
             )
         }),
     )
@@ -74,14 +74,23 @@ class UtilisateurAdminDebug(UserAdmin):
     readonly_fields = (
         "last_login",
         "date_joined",
+        "derniere_modification",
+        "tentatives_connexion",
+        "derniere_connexion_ip",
     )
 
 
 @admin.register(HistoriqueConnexion)
 class HistoriqueConnexionAdmin(admin.ModelAdmin):
+
     list_display = (
         "utilisateur",
-        "date_connexion",
         "statut_connexion",
         "type_action",
+        "date_connexion",
+        "adresse_ip",
     )
+
+    list_filter = ("statut_connexion", "type_action")
+    search_fields = ("utilisateur__username", "adresse_ip")
+    ordering = ("-date_connexion",)

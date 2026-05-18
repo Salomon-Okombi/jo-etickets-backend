@@ -2,6 +2,7 @@
 from rest_framework import serializers
 from .models import StatistiquesVente
 
+
 class StatistiquesVenteSerializer(serializers.ModelSerializer):
     offre_nom = serializers.CharField(source="offre.nom_offre", read_only=True)
 
@@ -17,4 +18,4 @@ class StatistiquesVenteSerializer(serializers.ModelSerializer):
             "moyenne_ventes_jour",
             "pic_ventes_heure",
         ]
-        read_only_fields = fields  # tout en read-only côté API
+        read_only_fields = fields

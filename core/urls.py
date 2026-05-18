@@ -31,24 +31,27 @@ schema_view = get_schema_view(
 # ===============================
 
 def api_root(request):
-    return JsonResponse({
-        "message": "Bienvenue sur l’API JO eTicket",
-        "version": "v1",
-        "apps": {
-            "utilisateurs": "/api/utilisateurs/",
-            "evenements": "/api/evenements/",
-            "offres": "/api/offres/",
-            "paniers": "/api/paniers/",
-            "commandes": "/api/commandes/",
-            "billets": "/api/billets/",
-            "paiements": "/api/paiements/",
-            "statistiques": "/api/statistiques/",
-        },
-        "docs": {
-            "swagger": "/swagger/",
-            "redoc": "/redoc/",
-        },
-    })
+    return JsonResponse(
+        {
+            "message": "Bienvenue sur l’API JO eTicket",
+            "version": "v1",
+            "apps": {
+                "utilisateurs": "/api/utilisateurs/",
+                "evenements": "/api/evenements/",
+                "offres": "/api/offres/",
+                "paniers": "/api/paniers/",
+                "commandes": "/api/commandes/",
+                "billets": "/api/billets/",
+                "paiements": "/api/paiements/",
+                "statistiques": "/api/statistiques/",
+                "stats": "/api/stats/",
+            },
+            "docs": {
+                "swagger": "/swagger/",
+                "redoc": "/redoc/",
+            },
+        }
+    )
 
 
 # ===============================
@@ -80,7 +83,10 @@ if "paiements.apps.PaiementsConfig" in settings.INSTALLED_APPS:
 
 if "analytics.apps.AnalyticsConfig" in settings.INSTALLED_APPS:
     urlpatterns += [
+        # Stats ventes (viewset)
         path("api/statistiques/", include("analytics.urls")),
+        # Overview dashboard attendu par le front
+        path("api/stats/", include("analytics.overview_urls")),
     ]
 
 
@@ -102,18 +108,13 @@ urlpatterns += [
     path(
         "redoc/",
         schema_view.with_ui("redoc", cache_timeout=0),
-        name="schema-redoc",
+        name="schema-redoc-ui",
     ),
 ]
 
 
 # ===============================
-# STATIC & MEDIA (PRODUCTION + DEV)
-# ===============================
-# IMPORTANT :
-# - STATIC : fichiers techniques (admin, css)
-# - MEDIA  : images uploadées (evenements, offres, etc.)
-# Ces deux dossiers doivent être servis même en production Render
+# STATIC & MEDIA
 # ===============================
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

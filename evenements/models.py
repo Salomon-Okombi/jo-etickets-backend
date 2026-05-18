@@ -1,12 +1,13 @@
-#evenement/models
 from django.db import models
+from decimal import Decimal
+from django.utils import timezone
 
 
 class Evenement(models.Model):
     """
     Modèle Evenement
     Utilisé pour :
-    - la boutique publique (frontend)
+    - la boutique publique
     - le back-office admin
     - l’API REST
     """
@@ -37,14 +38,13 @@ class Evenement(models.Model):
         verbose_name="Lieu"
     )
 
-    date_evenement = models.DateField(
-        verbose_name="Date de l'événement"
+    # PÉRIODE DE L'ÉVÉNEMENT
+    date_debut = models.DateTimeField(
+        verbose_name="Date et heure de début de l'événement"
     )
 
-    heure_evenement = models.TimeField(
-        blank=True,
-        null=True,
-        verbose_name="Heure de l'événement"
+    date_fin = models.DateTimeField(
+        verbose_name="Date et heure de fin de l'événement"
     )
 
     statut = models.CharField(
@@ -54,20 +54,28 @@ class Evenement(models.Model):
         verbose_name="Statut"
     )
 
+    prix_base = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=Decimal("0.00"),
+        verbose_name="Prix de base",
+        help_text="Prix de base SOLO. DUO/FAMILLE = multiplicateur."
+    )
+
     # =========================
     # Contenu boutique
     # =========================
 
     description_courte = models.TextField(
         blank=True,
-        help_text="Description affichée sur la carte de la boutique",
-        verbose_name="Description courte"
+        verbose_name="Description courte",
+        help_text="Affichée sur la carte boutique"
     )
 
     description_longue = models.TextField(
         blank=True,
-        help_text="Description affichée sur la page détail",
-        verbose_name="Description longue"
+        verbose_name="Description longue",
+        help_text="Affichée sur la page détail"
     )
 
     image = models.ImageField(
@@ -93,21 +101,19 @@ class Evenement(models.Model):
     class Meta:
         verbose_name = "Événement"
         verbose_name_plural = "Événements"
-        ordering = ["date_evenement"]
+        ordering = ["date_debut"]
 
     def __str__(self) -> str:
         return self.nom_evenement
 
     @property
-    def image_url(self):
-        """
-        Retourne l’URL réelle de l’image si elle existe.
-        Retourne None sinon.
+    def est_actif(self) -> bool:
+        now = timezone.now()
+        return (
+            self.statut == "PUBLIE"
+            and self.date_debut <= now <= self.date_fin
+        )
 
-        Règle importante :
-        - Aucun fallback d’image côté backend
-        - Le fallback visuel est géré exclusivement côté frontend
-        """
-        if self.image:
-            return self.image.url
-        return None
+    @property
+    def est_expire(self) -> bool:
+        return timezone.now() > self.date_fin

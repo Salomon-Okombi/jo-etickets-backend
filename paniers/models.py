@@ -20,6 +20,7 @@ class Panier(models.Model):
         related_name='paniers'
     )
     date_creation = models.DateTimeField(auto_now_add=True)
+    date_modification = models.DateTimeField(auto_now=True)
     statut = models.CharField(max_length=20, choices=STATUT_CHOICES, default='ACTIF')
     montant_total = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
     date_expiration = models.DateTimeField(null=True, blank=True)

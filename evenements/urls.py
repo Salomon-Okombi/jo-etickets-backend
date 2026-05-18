@@ -1,14 +1,22 @@
 # evenements/urls.py
 from rest_framework.routers import DefaultRouter
-from .views import EvenementViewSet
 from .views_admin import EvenementAdminViewSet
+from .views import EvenementViewSet
 
 router = DefaultRouter()
 
-# Public
-router.register(r"", EvenementViewSet, basename="evenements")
+# ADMIN D'ABORD (CRUCIAL)
+router.register(
+    r"admin",
+    EvenementAdminViewSet,
+    basename="admin-evenements"
+)
 
-# Admin
-router.register(r"admin", EvenementAdminViewSet, basename="admin-evenements")
+# PUBLIC ENSUITE
+router.register(
+    r"",
+    EvenementViewSet,
+    basename="evenements"
+)
 
 urlpatterns = router.urls

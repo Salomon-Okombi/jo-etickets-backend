@@ -1,4 +1,3 @@
-#admin analytic
 from django.contrib import admin
 from .models import StatistiquesVente
 
@@ -14,7 +13,34 @@ class StatistiquesVenteAdmin(admin.ModelAdmin):
         "pic_ventes_heure",
         "date_derniere_maj",
     )
-    list_filter = ("date_derniere_maj",)
-    search_fields = ("offre__nom_offre", "offre__evenement__nom")
+
+    # Filtres utiles pour l’admin (ajuste si besoin)
+    list_filter = (
+        "date_derniere_maj",
+        "offre",
+        "offre__evenement",
+        "offre__categorie",
+    )
+
+    #  Correction : nom_evenement (et champs de recherche pratiques)
+    search_fields = (
+        "offre__nom_offre",
+        "offre__evenement__nom_evenement",
+        "offre__categorie__code",
+        "offre__categorie__nom",
+    )
+
     ordering = ("-date_derniere_maj",)
-    readonly_fields = ("date_derniere_maj",)
+
+    # Les stats sont calculées automatiquement → lecture seule en admin
+    readonly_fields = (
+        "offre",
+        "nombre_ventes",
+        "chiffre_affaires",
+        "moyenne_ventes_jour",
+        "pic_ventes_heure",
+        "date_derniere_maj",
+    )
+
+    # Perf admin : évite N+1
+    list_select_related = ("offre", "offre__evenement", "offre__categorie")
