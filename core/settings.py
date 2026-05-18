@@ -51,13 +51,13 @@ INSTALLED_APPS = [
 ]
 
 # =========================================================
-# MIDDLEWARE
+# MIDDLEWARE  (ORDRE IMPORTANT)
 # =========================================================
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",  # 
-    "corsheaders.middleware.CorsMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",  #  STATIC FIX
+    "corsheaders.middleware.CorsMiddleware",       #  CORS AVANT COMMON
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -97,7 +97,7 @@ else:
     }
 
 # =========================================================
-# STATIC / MEDIA 
+# STATIC / MEDIA
 # =========================================================
 
 STATIC_URL = "/static/"
@@ -109,18 +109,22 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 # =========================================================
-# CORS 
+# CORS PRODUCTION FIX
 # =========================================================
 
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = False
 
-# OU version propre (commenter la ligne au-dessus si tu veux sécuriser)
-# CORS_ALLOWED_ORIGINS = [
-#     "http://localhost:5173",
-#     "https://jo-etickets-frontend-5s9w.onrender.com",
-# ]
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "https://jo-etickets-frontend-5s9w.onrender.com",
+]
 
 CORS_ALLOW_CREDENTIALS = True
+
+#  IMPORTANT sinon erreurs POST / auth
+CSRF_TRUSTED_ORIGINS = [
+    "https://jo-etickets-frontend-5s9w.onrender.com",
+]
 
 # =========================================================
 # REST FRAMEWORK
@@ -160,38 +164,40 @@ USE_TZ = True
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # =========================================================
-# LOGGING  (safe Render)
+# TEMPLATES
 # =========================================================
-
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "handlers": {
-        "console": {
-            "class": "logging.StreamHandler",
-        },
-    },
-    "root": {
-        "handlers": ["console"],
-        "level": "INFO",
-    },
-}
 
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "templates"],  # optionnel mais recommandé
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
                 "django.template.context_processors.debug",
-                "django.template.context_processors.request",
+                "django.template.context_processors.request",  #
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
             ],
         },
     },
 ]
+
+# =========================================================
+# LOGGING  (Render safe)
+# =========================================================
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {"class": "logging.StreamHandler"},
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "INFO",
+    },
+}
 
 # =========================================================
 # SECURITY (PROD)
