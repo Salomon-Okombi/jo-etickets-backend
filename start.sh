@@ -4,8 +4,8 @@ set -o errexit
 echo " Migration DB..."
 python manage.py migrate --noinput
 
-echo " Création admin..."
-python manage.py createadmin || true
+#echo " Création admin..."
+#python manage.py createadmin || true
 
 echo " Collect static..."
 python manage.py collectstatic --noinput
