@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 set -o errexit
 
-export PYTHONPATH=$PYTHONPATH:$(pwd)
+# Migrations au runtime
+python manage.py migrate --noinput
 
-echo " Running migrations..."
-python manage.py migrate --noinput || echo "❌ MIGRATION FAILED"
+# Création superuser automatique (optionnel)
+if [ "$CREATE_SUPERUSER" = "true" ]; then
+  python manage.py shell < scripts/create_superuser.py
+fi
 
-echo " Starting server..."
+# Lancer serveur Django
 gunicorn core.wsgi:application --bind 0.0.0.0:${PORT}
