@@ -6,4 +6,3 @@ pip install -r requirements.txt
 
 # Static files
 python manage.py collectstatic --noinput
-``
