@@ -5,8 +5,8 @@ export PYTHONPATH=$PYTHONPATH:$(pwd)
 
 pip install -r requirements.txt
 
-# ✅ créer dossier logs
+#  créer dossier logs
 mkdir -p logs
 
-# ✅ static
+#  static
 python manage.py collectstatic --noinput
