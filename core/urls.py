@@ -17,52 +17,33 @@ schema_view = get_schema_view(
     openapi.Info(
         title="JO eTicket API",
         default_version="v1",
-        description="API pour la gestion des utilisateurs, offres, billets, paniers et paiements.",
+        description="API JO eTicket",
         contact=openapi.Contact(email="support@jo-eticket.com"),
-        license=openapi.License(name="MIT License"),
     ),
     public=True,
     permission_classes=(permissions.AllowAny,),
 )
 
-
 # ===============================
-# API root
+# API ROOT
 # ===============================
 
 def api_root(request):
-    return JsonResponse(
-        {
-            "message": "Bienvenue sur l’API JO eTicket",
-            "version": "v1",
-            "apps": {
-                "utilisateurs": "/api/utilisateurs/",
-                "evenements": "/api/evenements/",
-                "offres": "/api/offres/",
-                "paniers": "/api/paniers/",
-                "commandes": "/api/commandes/",
-                "billets": "/api/billets/",
-                "paiements": "/api/paiements/",
-                "statistiques": "/api/statistiques/",
-                "stats": "/api/stats/",
-            },
-            "docs": {
-                "swagger": "/swagger/",
-                "redoc": "/redoc/",
-            },
-        }
-    )
+    return JsonResponse({
+        "message": "API JO eTicket",
+        "version": "v1",
+    })
 
 
 # ===============================
-# URL patterns principales
+# URLS PRINCIPALES
 # ===============================
 
 urlpatterns = [
     path("", api_root, name="api-root"),
     path("admin/", admin.site.urls),
 
-    # Apps principales
+    # API
     path("api/utilisateurs/", include("users.urls")),
     path("api/evenements/", include("evenements.urls")),
     path("api/offres/", include("offres.urls")),
@@ -71,9 +52,8 @@ urlpatterns = [
     path("api/billets/", include("billets.urls")),
 ]
 
-
 # ===============================
-# Apps métier conditionnelles
+# APPS OPTIONNELLES
 # ===============================
 
 if "paiements.apps.PaiementsConfig" in settings.INSTALLED_APPS:
@@ -83,39 +63,30 @@ if "paiements.apps.PaiementsConfig" in settings.INSTALLED_APPS:
 
 if "analytics.apps.AnalyticsConfig" in settings.INSTALLED_APPS:
     urlpatterns += [
-        # Stats ventes (viewset)
         path("api/statistiques/", include("analytics.urls")),
-        # Overview dashboard attendu par le front
         path("api/stats/", include("analytics.overview_urls")),
     ]
 
-
 # ===============================
-# Documentation API
+# DOCS
 # ===============================
 
 urlpatterns += [
     re_path(
         r"^swagger(?P<format>\.json|\.yaml)$",
         schema_view.without_ui(cache_timeout=0),
-        name="schema-json",
     ),
-    path(
-        "swagger/",
-        schema_view.with_ui("swagger", cache_timeout=0),
-        name="schema-swagger-ui",
-    ),
-    path(
-        "redoc/",
-        schema_view.with_ui("redoc", cache_timeout=0),
-        name="schema-redoc-ui",
-    ),
+    path("swagger/", schema_view.with_ui("swagger", cache_timeout=0)),
+    path("redoc/", schema_view.with_ui("redoc", cache_timeout=0)),
 ]
 
-
 # ===============================
-# STATIC & MEDIA
+#  MEDIA FILES (IMPORTANT IMAGE FIX)
 # ===============================
 
+#  DEV ONLY
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+# PROD (Render) → obligatoire pour afficher les images
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

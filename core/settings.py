@@ -4,6 +4,10 @@ from datetime import timedelta
 import os
 import dj_database_url
 
+# =========================================================
+# BASE DIR
+# =========================================================
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # =========================================================
@@ -50,13 +54,13 @@ INSTALLED_APPS = [
 ]
 
 # =========================================================
-# MIDDLEWARE  (ORDRE IMPORTANT)
+# MIDDLEWARE
 # =========================================================
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",  #  STATIC FIX
-    "corsheaders.middleware.CorsMiddleware",       #  CORS AVANT COMMON
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -67,7 +71,6 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "core.urls"
 WSGI_APPLICATION = "core.wsgi.application"
-ASGI_APPLICATION = "core.asgi.application"
 
 # =========================================================
 # DATABASE
@@ -96,7 +99,7 @@ else:
     }
 
 # =========================================================
-# STATIC / MEDIA
+# STATIC
 # =========================================================
 
 STATIC_URL = "/static/"
@@ -104,11 +107,18 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
+# =========================================================
+# MEDIA (FIX CRITIQUE IMAGE)
+# =========================================================
+
 MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
+#  IMPORTANT : créer le dossier si absent
+os.makedirs(MEDIA_ROOT, exist_ok=True)
 
 # =========================================================
-# CORS PRODUCTION FIX
+# CORS
 # =========================================================
 
 CORS_ALLOW_ALL_ORIGINS = False
@@ -120,7 +130,6 @@ CORS_ALLOWED_ORIGINS = [
 
 CORS_ALLOW_CREDENTIALS = True
 
-#  IMPORTANT sinon erreurs POST / auth
 CSRF_TRUSTED_ORIGINS = [
     "https://jo-etickets-frontend-5s9w.onrender.com",
 ]
@@ -174,7 +183,7 @@ TEMPLATES = [
         "OPTIONS": {
             "context_processors": [
                 "django.template.context_processors.debug",
-                "django.template.context_processors.request",  #
+                "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
             ],
@@ -183,7 +192,7 @@ TEMPLATES = [
 ]
 
 # =========================================================
-# LOGGING  (Render safe)
+# LOGGING
 # =========================================================
 
 LOGGING = {
@@ -199,7 +208,7 @@ LOGGING = {
 }
 
 # =========================================================
-# SECURITY (PROD)
+# SECURITY
 # =========================================================
 
 if not DEBUG:
