@@ -23,10 +23,10 @@ class EvenementAdminViewSet(ModelViewSet):
     permission_classes = [IsAdminUser]
     serializer_class = EvenementAdminSerializer
 
-    # permet upload image
+    # ✅ IMPORTANT -> permet upload image
     parser_classes = [MultiPartParser, FormParser]
 
-    #  permet image_url dans serializer
+    # ✅ IMPORTANT -> permet image_url dans serializer
     def get_serializer_context(self):
         return {"request": self.request}
 
