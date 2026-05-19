@@ -7,7 +7,17 @@ import dj_database_url
 # =========================================================
 # BASE DIR
 # =========================================================
+import cloudinary
 
+
+cloudinary.config(
+    cloud_name=config("CLOUDINARY_CLOUD_NAME"),
+    api_key=config("CLOUDINARY_API_KEY"),
+    api_secret=config("CLOUDINARY_API_SECRET"),
+)
+
+
+DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # =========================================================
@@ -52,7 +62,7 @@ INSTALLED_APPS = [
     "notifications",
     "commandes",
 ]
-
+INSTALLED_APPS += ["cloudinary", "cloudinary_storage"]
 # =========================================================
 # MIDDLEWARE
 # =========================================================
