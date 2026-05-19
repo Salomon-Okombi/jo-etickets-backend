@@ -73,6 +73,8 @@ class EvenementDetailSerializer(serializers.ModelSerializer):
 # ============================================================
 
 class EvenementAdminSerializer(serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField()
+
     class Meta:
         model = Evenement
         fields = [
@@ -85,35 +87,31 @@ class EvenementAdminSerializer(serializers.ModelSerializer):
             "prix_base",
             "description_courte",
             "description_longue",
-            "image",
+            "image",       # upload
+            "image_url",   # affichage 
             "statut",
         ]
 
+    def get_image_url(self, obj):
+        request = self.context.get("request")
+        return build_image_url(request, obj)
+
     def validate(self, attrs):
-        """
-        Règles métier ADMIN :
-        - date_fin > date_debut
-        - on ne peut pas créer un événement dans le passé
-        - on peut modifier un événement déjà en cours
-        """
         debut = attrs.get("date_debut")
         fin = attrs.get("date_fin")
         now = timezone.now()
 
-        # date_fin après date_debut
         if debut and fin and debut >= fin:
             raise serializers.ValidationError(
                 "La date de fin doit être postérieure à la date de début."
             )
 
-        # bloquer uniquement à la création
         if self.instance is None and debut and debut < now:
             raise serializers.ValidationError(
                 "Impossible de créer un événement dans le passé."
             )
 
         return attrs
-
 
 # ============================================================
 # PAGE D’ACCUEIL – TOP 3 ÉVÉNEMENTS
