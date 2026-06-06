@@ -1,3 +1,5 @@
+# Last edited by you@example.com @ 05/06/26 19:24.
+#evenements/view.py
 from django.db import models
 from decimal import Decimal
 from django.utils import timezone

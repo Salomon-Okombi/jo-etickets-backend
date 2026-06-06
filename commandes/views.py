@@ -1,3 +1,5 @@
+# Last edited by you@example.com @ 05/06/26 18:35.
+#commandes/views.py
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response

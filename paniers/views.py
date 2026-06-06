@@ -1,3 +1,5 @@
+# Last edited by you@example.com @ 05/06/26 19:19.
+#paniers/views.py
 from django.db import transaction
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action

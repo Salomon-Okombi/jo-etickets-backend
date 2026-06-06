@@ -1,3 +1,5 @@
+# Last edited by you@example.com @ 05/06/26 19:26.
+#analytics/admin
 from django.contrib import admin
 from .models import StatistiquesVente
 

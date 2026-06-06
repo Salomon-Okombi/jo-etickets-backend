@@ -1,3 +1,5 @@
+# Last edited by you@example.com @ 05/06/26 19:27.
+#analytics/serializers_public.py
 from rest_framework import serializers
 from .models import Evenement
 

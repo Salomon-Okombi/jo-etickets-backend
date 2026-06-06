@@ -1,6 +1,8 @@
+# Last edited by you@example.com @ 06/06/26 18:32.
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
 from django.utils import timezone
+from django.db import transaction
 
 from rest_framework import viewsets, status, permissions, filters
 from rest_framework.decorators import action
@@ -72,19 +74,42 @@ class EBilletViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["POST"], url_path="valider")
     def valider(self, request, pk=None):
-        billet = self.get_object()
+        """
+        Validation sécurisée d'un billet par son ID.
+        Anti double scan grâce à transaction.atomic + select_for_update().
+        """
+        with transaction.atomic():
+            try:
+                billet = (
+                    EBillet.objects
+                    .select_for_update()
+                    .select_related("utilisateur", "offre", "validateur")
+                    .get(pk=pk)
+                )
+            except EBillet.DoesNotExist:
+                return Response(
+                    {"detail": "Billet introuvable."},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
 
-        if billet.statut != "VALIDE":
-            return Response(
-                {"detail": "Billet déjà utilisé ou invalide."},
-                status=status.HTTP_400_BAD_REQUEST,
+            if billet.statut != "VALIDE":
+                return Response(
+                    {"detail": "Billet déjà utilisé ou invalide."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            billet.statut = "UTILISE"
+            billet.lieu_utilisation = request.data.get("lieu_utilisation", "Non spécifié")
+            billet.date_utilisation = timezone.now()
+            billet.validateur = request.user
+            billet.save(
+                update_fields=[
+                    "statut",
+                    "lieu_utilisation",
+                    "date_utilisation",
+                    "validateur",
+                ]
             )
-
-        billet.statut = "UTILISE"
-        billet.lieu_utilisation = request.data.get("lieu_utilisation", "Non spécifié")
-        billet.date_utilisation = timezone.now()
-        billet.validateur = request.user
-        billet.save()
 
         return Response(
             {"detail": "Billet validé avec succès."},
@@ -93,6 +118,10 @@ class EBilletViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["POST"], url_path="valider-par-cle")
     def valider_par_cle(self, request):
+        """
+        Validation sécurisée d'un billet par cle_finale.
+        Anti double scan grâce à transaction.atomic + select_for_update().
+        """
         cle_finale = request.data.get("cle_finale")
         if not cle_finale:
             return Response(
@@ -100,17 +129,39 @@ class EBilletViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        billet = get_object_or_404(
-            EBillet,
-            cle_finale=cle_finale,
-            statut="VALIDE",
-        )
+        with transaction.atomic():
+            billet = (
+                EBillet.objects
+                .select_for_update()
+                .select_related("utilisateur", "offre", "validateur")
+                .filter(cle_finale=cle_finale)
+                .first()
+            )
 
-        billet.statut = "UTILISE"
-        billet.lieu_utilisation = request.data.get("lieu_utilisation", "Non spécifié")
-        billet.date_utilisation = timezone.now()
-        billet.validateur = request.user
-        billet.save()
+            if not billet:
+                return Response(
+                    {"detail": "Billet introuvable."},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
+
+            if billet.statut != "VALIDE":
+                return Response(
+                    {"detail": "Billet déjà utilisé ou invalide."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            billet.statut = "UTILISE"
+            billet.lieu_utilisation = request.data.get("lieu_utilisation", "Non spécifié")
+            billet.date_utilisation = timezone.now()
+            billet.validateur = request.user
+            billet.save(
+                update_fields=[
+                    "statut",
+                    "lieu_utilisation",
+                    "date_utilisation",
+                    "validateur",
+                ]
+            )
 
         return Response(
             {"detail": "Billet validé avec succès."},
@@ -145,7 +196,7 @@ class EBilletViewSet(viewsets.ModelViewSet):
             )
 
         billet.statut = "ANNULE"
-        billet.save()
+        billet.save(update_fields=["statut"])
 
         return Response(
             {"detail": "Billet annulé."},

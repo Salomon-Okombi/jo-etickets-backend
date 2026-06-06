@@ -1,5 +1,13 @@
+# Last edited by you@example.com @ 05/06/26 21:11.
 from decimal import Decimal
+import base64
+import hashlib
+import hmac
+import uuid
+from io import BytesIO
 
+import qrcode
+from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
 from rest_framework.exceptions import ValidationError
@@ -39,6 +47,59 @@ def _billets_demandes(offre: Offre, quantite_packs: int) -> int:
     Convertit une quantité de packs en quantité de billets consommés.
     """
     return int(quantite_packs) * _nb_personnes(offre)
+
+
+def generate_cle_achat() -> str:
+    """
+    Génère une clé d'achat unique pour un billet.
+    """
+    return uuid.uuid4().hex
+
+
+def generate_cle_utilisateur(utilisateur) -> str:
+    """
+    Dérive une clé utilisateur stable à partir des données de l'utilisateur.
+    On ne la stocke pas en base : on la calcule à la volée.
+    """
+    base = f"{utilisateur.id}:{utilisateur.username}:{utilisateur.email}"
+    return hashlib.sha256(base.encode("utf-8")).hexdigest()
+
+
+def generate_cle_finale(utilisateur, cle_achat: str) -> str:
+    """
+    Génère la clé finale dérivée de :
+    - clé utilisateur
+    - clé achat
+
+    Version sécurisée avec HMAC.
+    """
+    cle_utilisateur = generate_cle_utilisateur(utilisateur)
+
+    return hmac.new(
+        key=settings.SECRET_KEY.encode("utf-8"),
+        msg=f"{cle_utilisateur}:{cle_achat}".encode("utf-8"),
+        digestmod=hashlib.sha256,
+    ).hexdigest()
+
+
+def generate_qr_code_base64(data: str) -> str:
+    """
+    Génère un QR code PNG en base64 à partir d'une chaîne.
+    Le champ qr_code en base contiendra le contenu base64 du PNG.
+    """
+    qr = qrcode.QRCode(
+        version=1,
+        box_size=10,
+        border=4,
+    )
+    qr.add_data(data)
+    qr.make(fit=True)
+
+    img = qr.make_image(fill_color="black", back_color="white")
+
+    buffer = BytesIO()
+    img.save(buffer, format="PNG")
+    return base64.b64encode(buffer.getvalue()).decode("utf-8")
 
 
 @transaction.atomic
@@ -126,6 +187,10 @@ def payer_commande_et_generer_billets(cmd: Commande, reference: str | None = Non
 
     - Transaction + select_for_update sur la commande et les offres => évite survente.
     - Idempotence : si déjà PAYEE, renvoie la commande sans rien refaire.
+    - Génère pour chaque billet :
+      - cle_achat
+      - cle_finale (dérivée)
+      - qr_code basé sur cle_finale
     """
     # Verrouille la commande (anti double clic)
     cmd = Commande.objects.select_for_update().get(pk=cmd.pk)
@@ -173,14 +238,22 @@ def payer_commande_et_generer_billets(cmd: Commande, reference: str | None = Non
 
     # Générer billets : 1 billet = 1 personne
     for ligne in lignes:
-        offre = ligne.offre  # déjà select_related dans lignes
+        offre = ligne.offre
         billets = _billets_demandes(offre, int(ligne.quantite))
+
         for _ in range(billets):
+            cle_achat = generate_cle_achat()
+            cle_finale = generate_cle_finale(cmd.utilisateur, cle_achat)
+            qr_code = generate_qr_code_base64(cle_finale)
+
             EBillet.objects.create(
                 utilisateur=cmd.utilisateur,
                 offre=offre,
                 prix_paye=ligne.prix_unitaire,
                 statut="VALIDE",
+                cle_achat=cle_achat,
+                cle_finale=cle_finale,
+                qr_code=qr_code,
             )
 
     return cmd

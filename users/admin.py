@@ -1,3 +1,5 @@
+# Last edited by you@example.com @ 05/06/26 18:47.
+#users/admin
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from .models import Utilisateur, HistoriqueConnexion

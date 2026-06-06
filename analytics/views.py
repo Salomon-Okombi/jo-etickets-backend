@@ -1,3 +1,4 @@
+#analytics/views.py
 from django.db.models import Sum, Max, Avg, Count
 from rest_framework import viewsets, permissions
 from rest_framework.decorators import action
